@@ -1,18 +1,31 @@
 Write a query to find no of orders each customer have from db_ukrainian.oc_order
 db.oc_order.aggregate([{$group:{_id:"$customer_id",count:{$sum:1}}},{"$sort":{"count":-1}}]); 
-
+=================================================================================================================
 Write a query to find sum of products for each order and sort them according to products decreasing order from oc_order_product collection.
  db.oc_order_product.aggregate([ {$match:{}},{$group: { _id:"$order_id", totalQty: {$sum: "$quantity"} } }, {$sort: {"totalQty":-1}} ]).pretty();
- 
+=================================================================================================================
 How to join two collections in mongodb?
 db.oc_order.aggregate([ { $lookup : { from: "oc_order_product", localField : "order_id", foreignField: "order_id", as:"COMMON"} }]).pretty();
-
+==================================================================================================================
 Write a query to find the orders placed by a customer,and no of products placed in an order. And also display total quantity ordered by customer.
 
 db.oc_order.aggregate([ {$group : {_id: {order_id: "$order_id",customer_id:"$customer_id"},totalQty: {$sum: "$oc_order_product.quantity"} }},
                         { $lookup : { from: "oc_order_product", localField : "_id.order_id", foreignField: "order_id", as:"COMMON"} }, 
                         {$match: {COMMON: {$ne:[] }}} ]).pretty();
+====================================================================================================================                       
+Display the Count of Product with Product images count  of >= 3. 
+db.oc_product_image.aggregate([ {$group: {_id:"$product_id",count:{$sum:1}} },{$match: {count: {$gt:3}}} ]);
+====================================================================================================================
+Display the Product with Product Options<=3.
+db.oc_product_option.aggregate([ {$group: {_id:"$product_id", count: {$sum:1} }}, {$match: {count: {$lte:3}}} ]);
+====================================================================================================================
+Display the Products By Category in decreasing order:
+db.oc_product_to_category.aggregate([ {$group: {_id:"$category_id", count: {$sum:1}}}, {$sort:{count:-1}} ]);
+=====================================================================================================================
+Display the Products By Category in decreasing order:
+ db.oc_product_to_category.aggregate([ {$group: {_id:"$category_id", count: {$sum:1}}}, {$sort:{count:1}} ]);
 
+=====================================================================================================================================================================
 Date, group
 db.sales.aggregate(
    [
