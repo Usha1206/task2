@@ -7,6 +7,11 @@ Write a query to find sum of products for each order and sort them according to 
 How to join two collections in mongodb?
 db.oc_order.aggregate([ { $lookup : { from: "oc_order_product", localField : "order_id", foreignField: "order_id", as:"COMMON"} }]).pretty();
 
+Write a query to find the orders placed by a customer,and no of products placed in an order. And also display total quantity ordered by customer.
+
+db.oc_order.aggregate([ {$group : {_id: {order_id: "$order_id",customer_id:"$customer_id"},totalQty: {$sum: "$oc_order_product.quantity"} }},
+                        { $lookup : { from: "oc_order_product", localField : "_id.order_id", foreignField: "order_id", as:"COMMON"} }, 
+                        {$match: {COMMON: {$ne:[] }}} ]).pretty();
 
 Date, group
 db.sales.aggregate(
