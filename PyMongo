@@ -1,5 +1,6 @@
-Using pythong packages such as pandas & alchemy, output the above 2 taasks in your jupter noteboook.
->> Write a query to find month-wise orders data. (Using Pymongo)
+#Using pythong packages such as pandas & alchemy, output the above 2 taasks in your jupter noteboook.
+#>> Write a query to find month-wise orders data. (Using Pymongo)
+
 import pymongo
 
 from pymongo import MongoClient
