@@ -1,0 +1,18 @@
+Using pythong packages such as pandas & alchemy, output the above 2 taasks in your jupter noteboook.
+>> Write a query to find month-wise orders data. (Using Pymongo)
+import pymongo
+
+from pymongo import MongoClient
+client =  MongoClient()
+client = MongoClient('mongodb://admin:admin@cluster0-shard-00-00.o3n2h.mongodb.net:27017,cluster0-shard-00-01.o3n2h.mongodb.net:27017,cluster0-shard-00-02.o3n2h.mongodb.net:27017/db_ukrainian?ssl=true&replicaSet=atlas-xbf64w-shard-0&authSource=admin&retryWrites=true&w=majority')
+
+db = client['db_ukrainian']
+
+db.list_collection_names()
+
+collection = db.oc_order
+
+result = collection.aggregate([{"$group" : {"_id" : {"$substr":["$date_added",5,2]},"count": {"$sum": 1} } }]);
+for i in result: 
+    print(i)
+    
