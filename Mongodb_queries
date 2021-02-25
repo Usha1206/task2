@@ -47,3 +47,6 @@ Successful imported the tables Orders, Products and Categories. Done!!
 
 Write a query to find month-wise orders data. 
 db.oc_order.aggregate([{ $group: { _id:{$substr:["$date_added",5,2]},count: {$sum: 1} } }]);
+
+Write a query wherre i can see month wise top selling product based on the orders (on progress)
+Using pythong packages such as pandas & alchemy, output the above 2 taasks in your jupter noteboook.
