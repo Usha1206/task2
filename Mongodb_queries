@@ -39,3 +39,11 @@ db.sales.aggregate(
      }
    ]
 )
+Convert the sql schema of Ukrainian fashion DB to nosql schema and upload it to your mongodb atlas
+Done !!
+Successful imported the tables Orders, Products and Categories. Done!!
+
+ 
+
+Write a query to find month-wise orders data. 
+db.oc_order.aggregate([{ $group: { _id:{$substr:["$date_added",5,2]},count: {$sum: 1} } }]);
