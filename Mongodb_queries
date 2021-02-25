@@ -49,3 +49,5 @@ Write a query to find month-wise orders data.
 db.oc_order.aggregate([{ $group: { _id:{$substr:["$date_added",5,2]},count: {$sum: 1} } }]);
 
 Write a query wherre i can see month wise top selling product based on the orders (on progress)
+ db.oc_order.aggregate([ { $lookup: { from: "oc_order_product", localField: "_id.order_id", foreignField: "order_id",as:"COMMON"} },{ "$group": {"_id": {"product":"oc_order_product.product_id","month":{$substr:["$date_added",5,2]}}} }, {"$sort": {"count": -1}},{"$limit":2},{"$project":{"product_id":1}}]); 
+ 
