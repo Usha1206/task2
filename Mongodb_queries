@@ -51,3 +51,55 @@ db.oc_order.aggregate([{ $group: { _id:{$substr:["$date_added",5,2]},count: {$su
 Write a query wherre i can see month wise top selling product based on the orders (on progress)
  db.oc_order.aggregate([ { $lookup: { from: "oc_order_product", localField: "_id.order_id", foreignField: "order_id",as:"COMMON"} },{ "$group": {"_id": {"product":"oc_order_product.product_id","month":{$substr:["$date_added",5,2]}}} }, {"$sort": {"count": -1}},{"$limit":2},{"$project":{"product_id":1}}]); 
  
+Write a query to get data of last 7 days in commodity wise or apmc wise.
+db.marketprices.aggregate([
+ 
+    {"$sort": {
+
+        "date" : -1
+
+    }
+
+    },
+
+    {
+
+        
+
+        $group: {
+
+            _id: { apmc: "$apmc", commodity: "$commodity" },
+
+            data: { '$push' : '$$ROOT' }
+
+        }
+
+    },
+
+    {
+
+        $group: {
+
+            _id: "$_id.commodity",
+
+            apmc: { $push: { apmc: "$_id.apmc",data:  {
+
+            '$slice' : [  "$data" , 7]
+
+            } } }
+
+        }
+
+    },
+
+    {
+        $project: {
+
+            _id: 1,
+            apmc:-1,            
+
+        }
+
+    }
+
+])
