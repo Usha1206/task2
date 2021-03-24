@@ -1,0 +1,35 @@
+#Write a query to find total number of orders?
+db.oc_order.find().count()
+
+#Write a query to find the total sales value?
+db.oc_order.aggregate([{$group:{_id: null,"total_sales_value":{$sum:"$total"}}}, {$project:{"_id":0}}])
+
+#Write a query to find total customers?
+db.oc_customer.find().count()
+
+#Write a query to find total number of people online?
+#(other concept used: sessions)
+
+#Write a query to find total number of orders and total sales value by country-wise?
+db.oc_country.aggregate([{$lookup:{from:"oc_order",localField:"country_id",foreignField:"payment_country_id",as:"sales"}},{$unwind:"$sales"},{$group:{_id:"$name",totalOrders:{$sum:"$sales.order_id"},totalSales:{$sum:"$sales.total"}}}, {$sort:{"_id":1}} ]);
+
+#Write a query to find the latest 5 recent activities?
+db.oc_affiliate.find({},{"_id":0,"affiliate_activity.key":1,"affiliate_activity.data":1}).sort({"affiliate_activity.date_added":-1}).limit(5).pretty();
+
+#Write a query to find recent 5 orders?
+
+#Write a query to find total number of orders are completed?
+db.oc_order.find({"order_status_id":5}).count();
+
+#Write a query to find number of orders are processing?
+db.oc_order.find({"order_status_id":2}).count();
+
+#Write a query to find total number of orders which are having other than completed and processing statuses?
+db.oc_order.find({"$and":[{"order_status_id":{"$ne":2}},{"order_status_id":{"$ne":5}}]}).count()
+
+#Write a query to find the recurring customers/profiles?
+
+#Write a query to find the products return?
+db.oc_return.find({"return_status_id":2}).pretty();  - For awaiting products
+db.oc_return.find({"return_status_id":1}).pretty();  - For pending returns
+db.oc_return.find({"return_status_id":3}).pretty();  - For complete returns
