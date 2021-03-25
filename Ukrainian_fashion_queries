@@ -33,3 +33,24 @@ db.oc_order.find({"$and":[{"order_status_id":{"$ne":2}},{"order_status_id":{"$ne
 db.oc_return.find({"return_status_id":2}).pretty();  - For awaiting products
 db.oc_return.find({"return_status_id":1}).pretty();  - For pending returns
 db.oc_return.find({"return_status_id":3}).pretty();  - For complete returns
+
+
+25-Mar-2021
+
+Write a query to find the details of given order ID (page: Orders, filter data)
+db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"order_id":37}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+
+Write a query to find the details of given dateAdded(greater than) (page: Orders, filter data)
+db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"date_added":{"$gte":new Date("2014-09-01")}}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+
+Write a query to find the details of given dateModified(greater than) (page: Orders, filter data)
+db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"date_modified":{"$gte":new Date("2014/08/22")}}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+
+Write a query to find the details of given Total purchase value(greater than) (page: Orders, filter data)
+db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"order_product.total":{"$gte":50.95}}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]).pretty(); 
+
+Write a query to find the details of given Customer name (either first name or last name) (page: Orders, filter data)
+db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{$or:[{"firstname":"Christine"},{"lastname":"Braid"}]}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+Write a query to find the order details of given order status (Complete,Canceled, Processed etc) (page: Orders, filter data)
+
+db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"order_status.name":"Complete"}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
