@@ -54,3 +54,9 @@ db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_
 
 #Write a query to find the order details of given order status (Complete,Canceled, Processed etc) (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"order_status.name":"Complete"}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+
+#Write a query to find the return details of given return id (page: Product Returns	, filter data)
+db.oc_return.aggregate([{"$match":{"return_id":8}},{"$project":{"_id":0,"return_id":1,"order_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"product":1,"model":1,"return_status.name":1,"date_added":1,"date_modified":1}}])
+
+#Write a query to find the return details of given customer firstname or lastname (page: Product Returns	, filter data)
+db.oc_return.aggregate([{"$match":{"$or":[{"firstname":"Johna198"},{"lastname":"Johna198"}]}},{"$project":{"_id":0,"return_id":1,"order_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"product":1,"model":1,"return_status.name":1,"date_added":1,"date_modified":1}}])
