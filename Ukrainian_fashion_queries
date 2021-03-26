@@ -60,3 +60,31 @@ db.oc_return.aggregate([{"$match":{"return_id":8}},{"$project":{"_id":0,"return_
 
 #Write a query to find the return details of given customer firstname or lastname (page: Product Returns	, filter data)
 db.oc_return.aggregate([{"$match":{"$or":[{"firstname":"Johna198"},{"lastname":"Johna198"}]}},{"$project":{"_id":0,"return_id":1,"order_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"product":1,"model":1,"return_status.name":1,"date_added":1,"date_modified":1}}])
+
+
+26Mar2021
+
+#Write a query to find the return details of given model number (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"model":"lpzYFOmKhPyw"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
+
+#Write a query to find the return details of given date of date-added (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"date_added":{"$gte":new Date("2017/01/27")}}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
+
+#Write a query to find the return details of given order_id (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"order_id":471}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]).pretty();
+
+#Write a query to find the return details of given product: (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"product":"eryuuowi"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}])
+
+
+#Write a query to find the return details of given Product Return Status[Awaiting Products]: (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"return_status.name":"Awaiting Products"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
+
+#Write a query to find the return details of given Product Return Status[Complete]: (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"return_status.name":"Complete"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
+
+#Write a query to find the return details of given Product Return Status[Pending]: (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"return_status.name":"Pending"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
+
+#Write a query to find the return details of given modified date[Pending]: (page: Product Returns)
+db.oc_return.aggregate([{"$match":{"date_modified":{"$gte":new Date("2017/01/23")}}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
