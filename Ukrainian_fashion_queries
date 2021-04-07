@@ -1,207 +1,199 @@
-Write a query to find total number of orders?
+# Write a query to find total number of orders?
 db.oc_order.find().count()
-SELECT count(*) FROM oc_order;
+SQL: SELECT count(*) FROM oc_order;
 
-Write a query to find the total sales value?
+# Write a query to find the total sales value?
 db.oc_order.aggregate([{$group:{_id: null,"total_sales_value":{$sum:"$total"}}}, {$project:{"_id":0}}])
-SELECT sum(total) FROM oc_order;
+SQL: SELECT sum(total) FROM oc_order;
 
-Write a query to find total customers?
+# Write a query to find total customers?
 db.oc_customer.find().count()
-SELECT count(customer_id) FROM oc_customer;
+SQL: SELECT count(customer_id) FROM oc_customer;
 
-Write a query to find total number of people online?
-(other concept used: sessions)
+# Write a query to find total number of people online?
+# (other concept used: sessions)
 
-Write a query to find total number of orders and total sales value by country-wise?
+# Write a query to find total number of orders and total sales value by country-wise?
 db.oc_country.aggregate([{$lookup:{from:"oc_order",localField:"country_id",foreignField:"payment_country_id",as:"sales"}},{$unwind:"$sales"},{$group:{_id:"$name",totalOrders:{$sum:"$sales.order_id"},totalSales:{$sum:"$sales.total"}}}, {$sort:{"_id":1}} ]);
 
-SELECT oc_country.name, count(*) AS Count, SUM(oc_order.total) as TotalValue FROM oc_country JOIN oc_order ON oc_country.country_id = oc_order.payment_country_id group by oc_country.country_id;
+SQL: SELECT oc_country.name, count(*) AS Count, SUM(oc_order.total) as TotalValue FROM oc_country JOIN oc_order ON oc_country.country_id = oc_order.payment_country_id group by oc_country.country_id;
 
 
-Write a query to find the latest 5 recent activities?
+# Write a query to find the latest 5 recent activities?
 db.oc_affiliate.find({},{"_id":0,"affiliate_activity.key":1,"affiliate_activity.data":1}).sort({"affiliate_activity.date_added":-1}).limit(5).pretty();
 
-select afa.key,afa.data from oc_affiliate as af JOIN oc_affiliate_activity as afa ON af.affiliate_id = afa.affiliate_id order by af.date_added desc limit 5;
+SQL: select afa.key,afa.data from oc_affiliate as af JOIN oc_affiliate_activity as afa ON af.affiliate_id = afa.affiliate_id order by af.date_added desc limit 5;
 
-Write a query to find recent 5 orders?
+# Write a query to find recent 5 orders?
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}}, {"$sort":{"date_added":-1}},{$limit:5}, {$project: {_id:0,order_id:1, "Customer": {"$concat":["$firstname"," ", "$lastname"]}, "order_status.name":1, "order_product.total":1, "date_added":1, "date_modified":1}}]);
 
-select O.order_id, concat(O.firstname," ",O.lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order as O JOIN oc_order_status as OS ON OS.order_status_id = O.order_status_id order by O.date_added desc limit 5;
+SQL: select O.order_id, concat(O.firstname," ",O.lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order as O JOIN oc_order_status as OS ON OS.order_status_id = O.order_status_id order by O.date_added desc limit 5;
 
-Write a query to find total number of orders are completed?
+#Write a query to find total number of orders are completed?
 db.oc_order.find({"order_status_id":5}).count();
-SELECT count(*) from oc_order where oc_order.order_status_id = 5;
+SQL: SELECT count(*) from oc_order where oc_order.order_status_id = 5;
 
-Write a query to find number of orders are processing?
+# Write a query to find number of orders are processing?
 db.oc_order.find({"order_status_id":2}).count();
-SELECT count(*) from oc_order where oc_order.order_status_id = 2;
+SQL: SELECT count(*) from oc_order where oc_order.order_status_id = 2;
 
-Write a query to find total number of orders which are having other than completed and processing statuses?
+# Write a query to find total number of orders which are having other than completed and processing statuses?
 db.oc_order.find({"$and":[{"order_status_id":{"$ne":2}},{"order_status_id":{"$ne":5}}]}).count()
-SELECT count(*) from oc_order where oc_order.order_status_id != 2 AND oc_order.order_status_id != 5;
+SQL: SELECT count(*) from oc_order where oc_order.order_status_id != 2 AND oc_order.order_status_id != 5;
 
-Write a query to find the recurring customers/profiles?
+# Write a query to find the recurring customers/profiles?
 (No data)
 
-Write a query to find the products return?
+# Write a query to find the products return?
 db.oc_return.find({"return_status_id":2}).pretty();  - For awaiting products
-SELECT count(*) as Awaiting_Products from oc_return where oc_return.return_status_id = 2;
+SQL: SELECT count(*) as Awaiting_Products from oc_return where oc_return.return_status_id = 2;
 
 db.oc_return.find({"return_status_id":1}).pretty();  - For pending returns
-SELECT count(*) as Pending_Returns from oc_return where oc_return.return_status_id = 1;
+SQL: SELECT count(*) as Pending_Returns from oc_return where oc_return.return_status_id = 1;
 
 db.oc_return.find({"return_status_id":3}).pretty();  - For complete returns
-SELECT count(*) as Complete_Returns from oc_return where oc_return.return_status_id = 3;
+SQL: SELECT count(*) as Complete_Returns from oc_return where oc_return.return_status_id = 3;
 
 
-Write a query to find the details of given order ID (page: Orders, filter data)
+# Write a query to find the details of given order ID (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"order_id":37}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ", "$payment_lastname"]}, "order_status.name":1, "order_product.total":1, "date_added":1, "date_modified":1} }]);
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON O.order_id = OS.order_status_id where O.order_id = 10;
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON O.order_id = OS.order_status_id where O.order_id = 10;
 
-Write a query to find the details of given dateAdded (page: Orders, filter data)
+# Write a query to find the details of given dateAdded (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}}, {"$match":{"date_added":{"$gte": new Date("2014-05-08 00:00:00"),"$lte":new Date("2014-05-08 23:59:59")}}}, {"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.date_added >= "2014-06-30 00:00:00" AND O.date_added < "2014-06-30 23:59:59";
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.date_added >= "2014-06-30 00:00:00" AND O.date_added < "2014-06-30 23:59:59";
-
-Write a query to find the details of given dateModified(greater than) (page: Orders, filter data)
+# Write a query to find the details of given dateModified(greater than) (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}}, {"$match":{"date_modified":{"$gte": new Date("2014-08-22 00:00:00"),"$lte":new Date("2014-08-22 23:59:59")}}}, {"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.date_modified >= "2014-05-29 00:00:00" AND O.date_modified < "2014-05-29 23:59:59";
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.date_modified >= "2014-05-29 00:00:00" AND O.date_modified < "2014-05-29 23:59:59";
-
-Write a query to find the details of given Total purchase value(greater than) (page: Orders, filter data)
+# Write a query to find the details of given Total purchase value(greater than) (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}}, {"$match":{"order_product.total":{"$gte":50.95}}}, {"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ", "$payment_lastname"]}, "order_status.name":1, "order_product.total":1, "date_added":1, "date_modified":1} }]).pretty(); 
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.total= 93.9800 ;
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.total= 93.9800 ;
-
-Write a query to find the details of given Customer name (either first name or last name) (page: Orders, filter data)
+# Write a query to find the details of given Customer name (either first name or last name) (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{$or:[{"firstname":"Christine"},{"lastname":"Braid"}]}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ","$payment_lastname"]},"order_status.name":1,"order_product.total":1,"date_added":1,"date_modified":1} }]);
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.firstname="Christine" or O.lastname="Braid";
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where O.firstname="Christine" or O.lastname="Braid";
 
-Write a query to find the order details of given order status (Complete,Canceled, Processed etc) (page: Orders, filter data)
+# Write a query to find the order details of given order status (Complete,Canceled, Processed etc) (page: Orders, filter data)
 db.oc_order.aggregate([{"$lookup":{"from":"oc_order_status","localField":"order_status_id","foreignField":"order_status_id", as:"order_status"}},{"$match":{"order_status.name":"Complete"}},{"$project":{"_id":0,"order_id":1,"Customer": {"$concat":["$payment_firstname"," ", "$payment_lastname"]}, "order_status.name":1, "order_product.total":1, "date_added":1, "date_modified":1} }]);
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where OS.name="Complete";
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where OS.name="Complete";
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where OS.name="Canceled";
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where OS.name="Canceled";
 
-select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where OS.name="Processed";
+SQL: select order_id, CONCAT(firstname," ",lastname) as Customer, OS.name, O.total, O.date_added, O.date_modified from oc_order O JOIN oc_order_status OS ON OS.order_status_id = O.order_status_id where OS.name="Processed";
 
-Write a query to find the return details of given return id (page: Product Returns	, filter data)
+# Write a query to find the return details of given return id (page: Product Returns	, filter data)
 db.oc_return.aggregate([{"$match":{"return_id":8}},{"$project":{"_id":0,"return_id":1,"order_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"product":1,"model":1,"return_status.name":1,"date_added":1,"date_modified":1}}])
 
-Write a query to find the return details of given customer firstname or lastname (page: Product Returns	, filter data)
+# Write a query to find the return details of given customer firstname or lastname (page: Product Returns	, filter data)
 db.oc_return.aggregate([{"$match":{"$or":[{"firstname":"Johna198"},{"lastname":"Johna198"}]}},{"$project":{"_id":0,"return_id":1,"order_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"product":1,"model":1,"return_status.name":1,"date_added":1,"date_modified":1}}])
 
-Write a query to find the return details of given model number (page: Product Returns)
+# Write a query to find the return details of given model number (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"model":"lpzYFOmKhPyw"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
 
-Write a query to find the return details of given date of date-added (page: Product Returns)
+# Write a query to find the return details of given date of date-added (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"date_added":{"$gte": new Date("2016/08/18 00:00:00"),"$lte":new Date("2016/08/18 23:59:59")}}}, {"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
 
-Write a query to find the return details of given order_id (page: Product Returns)
+# Write a query to find the return details of given order_id (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"order_id":471}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]).pretty();
 
-Write a query to find the return details of given product: (page: Product Returns)
+# Write a query to find the return details of given product: (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"product":"eryuuowi"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}])
 
-
-Write a query to find the return details of given Product Return Status[Awaiting Products]: (page: Product Returns)
+# Write a query to find the return details of given Product Return Status[Awaiting Products]: (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"return_status.name":"Awaiting Products"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
 
-Write a query to find the return details of given Product Return Status[Complete]: (page: Product Returns)
+# Write a query to find the return details of given Product Return Status[Complete]: (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"return_status.name":"Complete"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
 
-Write a query to find the return details of given Product Return Status[Pending]: (page: Product Returns)
+# Write a query to find the return details of given Product Return Status[Pending]: (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"return_status.name":"Pending"}},{"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
 
-Write a query to find the return details of given modified date: (page: Product Returns)
+# Write a query to find the return details of given modified date: (page: Product Returns)
 db.oc_return.aggregate([{"$match":{"date_modified":{"$gte": new Date("2019/08/14 00:00:00"),"$lte":new Date("2019/08/14 23:59:59")}}}, {"$project":{"_id":0,"return_id":1,"Customer":{"$concat":["$firstname"," ","$lastname"]},"model":1,"date_added":1,"order_id":1,"product":1,"return_status.name":1,"date_modified":1 }}]);
 
-Write a query to find all the customer details (page: Customers)
+# Write a query to find all the customer details (page: Customers)
 db.oc_customer.aggregate([{"$match":{}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ","$lastname"]},"email":1,"customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given customer firstname or lastname(page: Customers)
+# Write a query to find all the customer details of given customer firstname or lastname(page: Customers)
 db.oc_customer.aggregate([{"$match":{"$or":[{"firstname":"Aisha"},{"lastname":""}]}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1, Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given customer group(selected)(page: Customers)
+# Write a query to find all the customer details of given customer group(selected)(page: Customers)
 db.oc_customer.aggregate([{"$match":{"customer_group.customer_group_description.name":"selected"}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given customer group(new)(page: Customers)
+# Write a query to find all the customer details of given customer group(new)(page: Customers)
 db.oc_customer.aggregate([{"$match":{"customer_group.customer_group_description.name":"new"}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-
-Write a query to find all the customer details If Approved = YES (page: Customers)
+# Write a query to find all the customer details If Approved = YES (page: Customers)
 db.oc_customer.aggregate([{"$match":{"approved":true}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1, Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details, If Approved = NO(page: Customers)
+# Write a query to find all the customer details, If Approved = NO(page: Customers)
 db.oc_customer.aggregate([{"$match":{"approved":false}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given date_added (page: Customers)
+# Write a query to find all the customer details of given date_added (page: Customers)
 db.oc_customer.aggregate([{"$match":{"date_added":{"$gte": new Date("2017/01/23 00:00:00"),"$lte":new Date("2017/01/23 23:59:59")}}}, {"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given customer email (page: Customers)
+# Write a query to find all the customer details of given customer email (page: Customers)
 db.oc_customer.aggregate([{"$match":{"email":"irena_ten@yahoo.com"}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given customer status(If Status = YES)(page: Customers)
+# Write a query to find all the customer details of given customer status(If Status = YES)(page: Customers)
 db.oc_customer.aggregate([{"$match":{"status":true}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
-Write a query to find all the customer details of given customer status(If Status = NO)(page: Customers)
+# Write a query to find all the customer details of given customer status(If Status = NO)(page: Customers)
 db.oc_customer.aggregate([{"$match":{"status":false}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
- 
-Write a query to find all the customer details of given ip address(page: Customers)
+# Write a query to find all the customer details of given ip address(page: Customers)
 db.oc_customer.aggregate([{"$match":{"ip":"175.101.14.246"}},{"$project":{"_id":0,"Customer":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "customer_group.customer_group_description.name":1,Status:{$cond:{if: {$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}, "customer_ip.ip":1, "date_added":1}}]);
 
 
-
 REPORTS:
-Write a query to get the orders details between the two given dates. (Reports page)
+# Write a query to get the orders details between the two given dates. (Reports page)
 
 
 Affiliates:
 
-Write a query to find the affiliate data (in marketing tab)
+# Write a query to find the affiliate data (in marketing tab)
 db.oc_affiliate.aggregate([{"$match":{}},{"$project":{_id:0,"Affiliate Name":{"$concat":["firstname"," ","lastname"]},"email":1,"commission":1,Status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) by using the given Affiliate Name.
+# Write a query to find the affiliate data (in marketing tab) by using the given Affiliate Name.
 db.oc_affiliate.aggregate([{"$match":{"$or":[{"firstname":"Hoang"},{"lastname":""}]}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "commission":1, Status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) for given status as Enabled.
+# Write a query to find the affiliate data (in marketing tab) for given status as Enabled.
 db.oc_affiliate.aggregate([{"$match":{"status":true}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "commission":1, status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) for given status as Disabled.
-
+# Write a query to find the affiliate data (in marketing tab) for given status as Disabled.
 db.oc_affiliate.aggregate([{"$match":{"status":false}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "commission":1, status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) for given Date Added.
+# Write a query to find the affiliate data (in marketing tab) for given Date Added.
 db.oc_affiliate.aggregate([{"$match":{"date_added":{"$gte": new Date("2019/10/24 00:00:00"),"$lte":new Date("2019/10/24 23:59:59")}}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "commission":1, status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) for given email.
+# Write a query to find the affiliate data (in marketing tab) for given email.
 db.oc_affiliate.aggregate([{"$match":{"email":"printerast@gmail.com"}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ","$lastname"]}, "email":1, "commission":1, status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) which are not approved.
+# Write a query to find the affiliate data (in marketing tab) which are not approved.
 db.oc_affiliate.aggregate([{"$match":{"approved":false}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ","$lastname"]}, "email":1, "commission":1, status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to find the affiliate data (in marketing tab) which are approved.
+# Write a query to find the affiliate data (in marketing tab) which are approved.
 db.oc_affiliate.aggregate([{"$match":{"approved":true}},{"$project":{_id:0,"Affiliate Name":{"$concat":["$firstname"," ", "$lastname"]}, "email":1, "commission":1, status:{$cond:{if:{$eq:["$status",true]},then:"Enabled",else:"Disabled"}},"date_added":1}}])
 
-Write a query to display the list of coupons (Coupons in Marketing tab)
+# Write a query to display the list of coupons (Coupons in Marketing tab)
 db.oc_coupon.aggregate([{"$match":{}},{"$project":{_id:0, name:1, code:1, discount:1, date_start:1, date_end:1, status:{$cond:{if:{$eq:["$status",true]}, then:"Enabled", else:"Disabled"}}}}])
 
-Write a query to display the list of users (Users in System tab)
+# Write a query to display the list of users (Users in System tab)
 db.oc_user.aggregate([{"$match":{}},{$project:{_id:0,username:1,status:{$cond:{if:{$eq:["$status",true]}, then:"Enabled", else:"Disabled"}},date_added:1}}])
 
-Write a query to display the currency list (Currency in Localisation of System tab)
+# Write a query to display the currency list (Currency in Localisation of System tab)
 db.oc_currency.aggregate([{"$project":{_id:0, title:1, code:1, value:1, date_modified:1}}])
 
-Write a query to display the country list (Countries in Localisation of System tab)
+# Write a query to display the country list (Countries in Localisation of System tab)
 db.oc_country.aggregate([{$project:{_id:0,name:1,iso_code_2:1,iso_code_3:1}}]);
 
-Write a query to display the zone list (Zones in Localisation of System tab)
+# Write a query to display the zone list (Zones in Localisation of System tab)
 db.oc_zone.aggregate([{"$lookup":{"from":"oc_country","localField":"country_id","foreignField":"country_id", as:"country"}},{"$project":{"_id":0,"country.name":1,"name":1,"code":1}}])
 
-Write a query to display the geo-zone list (GeoZones in Localisation of System tab)
+# Write a query to display the geo-zone list (GeoZones in Localisation of System tab)
 db.oc_geo_zone.aggregate([{"$project":{"_id":0,"name":1,"description":1}}])
